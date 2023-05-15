@@ -116,7 +116,7 @@ HUD::HUD(int* health, int* coins, Game* game){
 		tx.setString("$"+std::to_string(price));
 		this->prices.push_back(std::move(tx));
 		this->prc.push_back(price);
-		buttonFunctions[i] = [towerNames, i]() {std::cout << towerNames[i] << std::endl; return towerNames[i]; };
+		buttonFunctions[i] = [towerNames, i]() { return towerNames[i]; };
 	}
 	this->setTowerPickerButtonPosition();
 }

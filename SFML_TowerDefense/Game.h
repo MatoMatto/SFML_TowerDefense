@@ -32,7 +32,12 @@ private:
 	std::map<std::string,sf::Texture> enemyTextures, bulletTextures;
 	sf::SoundBuffer clickBuffer, enemyDeathBuffer;
 	sf::Sound clickSound, enemyDeathSound;
+
+	sf::Music theme;
+
 	std::vector<std::string> enemyTypes;
+
+
 
 
 	std::vector<Enemy*> enemies;
@@ -41,6 +46,8 @@ private:
 	Map* map;
 	HUD* hud;
 	TowerPlace* tp;
+
+
 	float acceleration = 1;
 	float max_velocity = 10;
 	float FPS;

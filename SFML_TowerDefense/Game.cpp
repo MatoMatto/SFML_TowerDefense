@@ -59,6 +59,10 @@ void Game::initVars(){
 	
 	this->baseTexture.loadFromFile("Resources/Sprites/base.png");
 
+	this->theme.openFromFile("Resources/Sounds/theme.wav");
+	this->theme.setVolume(10.f);
+	this->theme.play();
+
 	std::fstream fs;
 	std::string tmp;
 	fs.open("Resources/config/bullets.ini", std::ios::in);
@@ -225,7 +229,10 @@ void Game::pollEvents(){
 				if (this->gameState == GameState::PLAYING)this->gameState = GameState::PAUSED;
 				else if (this->gameState == GameState::PAUSED && !this->endGame)this->gameState = GameState::PLAYING;
 				else if (this->gameState == GameState::SETTINGS && !this->endGame)this->gameState = GameState::PAUSED;
-				else this->gameState = GameState::MENU;
+				else if(this->gameState != GameState::MENU){ 
+					this->gameState = GameState::MENU; 
+					this->theme.play();
+				}
 			}
 			break;
 		case sf::Event::MouseButtonPressed:
@@ -236,6 +243,7 @@ void Game::pollEvents(){
 						this->clickSound.play();
 						if (e->getText() == "Play") {
 							this->newGame();
+							this->theme.pause();
 						}
 						else if (e->getText() == "Settings") {
 							this->gameState = GameState::SETTINGS;
@@ -282,6 +290,7 @@ void Game::pollEvents(){
 						}
 						else if (e->getText() == "Return to menu") {
 							this->gameState = GameState::MENU;
+							this->theme.play();
 						}
 					}
 				}
@@ -434,12 +443,22 @@ float Game::getFPS() {
 
 void Game::newGame() {
 	this->map = new Map();
-	this->map->loadMap("demo1.tdmap");
 	this->gameState = GameState::PLAYING;
 	this->endGame = false;
-	this->health = 1;
+	std::string map = "demo1.tdmap";
+	this->health = 10;
 	this->coins = 900;
 	this->round = 1;
+	std::fstream fs;
+	fs.open("Resources/config/game.ini", std::ios::in);
+	std::getline(fs, map);
+	fs >> this->coins;
+	fs >> this->health;
+	fs >> this->round;
+	this->map->loadMap(map);
+	fs.close();
+
+
 	this->enemySpawnTimer = 0;
 	this->roundClock.restart();
 	for (auto& e : this->enemies) {
