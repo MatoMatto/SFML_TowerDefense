@@ -6,7 +6,6 @@ void Bullet::update() {
 	this->moveToTarget();
 	this->checkOutOfBounds();
 	if (valid)checkEnemyCollision();
-	std::cout << this << " " << position.x<<" "<<position.y << std::endl;
 }
 
 void Bullet::setTarget(Enemy* enemy) {
@@ -90,7 +89,6 @@ void Bullet::checkEnemyCollision() {
 			if (!enemy->isDead()) {
 				enemy->damage(damage);
 			}
-			std::cout << "Shot" << std::endl;
 			valid = false;
 			return;
 		}

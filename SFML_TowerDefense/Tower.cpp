@@ -11,7 +11,6 @@ Tower::Tower(std::string name, sf::Vector2f position, Game* game, sf::Texture& t
 	fs >> bulletName;
 	fs.close();
 	this->size = { TOWER_SIZE, TOWER_SIZE };
-	std::cout << price << " " << shootDelay << " " << radious << std::endl;
 	this->isSelected = true;
 	this->damageDelt = 0;
 	this->target = nullptr;
@@ -90,7 +89,6 @@ void Tower::shoot() {
 	bullet->setStaticTarget(enemyPos);
 	bullet->setTarget(target);
 	this->bullets.push_back(bullet);
-	std::cout << "Boom" << std::endl;
 }
 std::vector<Bullet*>& Tower::getBullets() {
 	return this->bullets;

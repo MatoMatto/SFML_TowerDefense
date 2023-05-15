@@ -11,6 +11,8 @@ void Game::initText(){
 	this->gameOverText.setFont(this->font);
 	this->gameOverText.setString("Game over");
 	this->gameOverText.setFillColor(sf::Color::Red);
+	this->gameOverText.setOutlineColor(sf::Color::White);
+	this->gameOverText.setOutlineThickness(5);
 	this->gameOverText.setCharacterSize(MENU_FONT_HEIGHT * 2);
 	this->gameOverText.setOrigin(sf::Vector2f( this->gameOverText.getLocalBounds().width / 2, this->gameOverText.getLocalBounds().height / 2 ));
 	this->gameOverText.setPosition(sf::Vector2f( Global::window->getSize().x / 2, Global::window->getSize().y / 2 ));
@@ -236,7 +238,6 @@ void Game::pollEvents(){
 							this->newGame();
 						}
 						else if (e->getText() == "Settings") {
-							std::cout << "Settings" << std::endl;
 							this->gameState = GameState::SETTINGS;
 						}
 						else if (e->getText() == "Exit") {
@@ -250,14 +251,12 @@ void Game::pollEvents(){
 					if (e->isMouseOver(*Global::window)) {
 						this->clickSound.play();
 						if (e->getText().find("FPS") != std::string::npos) {
-							std::cout << "FPS" << std::endl;
 							this->showFPS = !this->showFPS;
 							if (this->showFPS)e->setText("FPS: ON");
 							else e->setText("FPS: OFF");
 							e->setPadding(e->getPadding());
 						}
 						else if (e->getText().find("Vsync") != std::string::npos) {
-							std::cout << "Vsync" << std::endl;
 							this->v_sync = !this->v_sync;
 							if (this->v_sync)e->setText("Vsync: ON");
 							else e->setText("Vsync: OFF");
@@ -277,11 +276,9 @@ void Game::pollEvents(){
 						this->clickSound.play();
 						if (e->getText() == "Resume") {
 							this->gameState = GameState::PLAYING;
-							std::cout << "Resume" << std::endl;
 						}
 						else if (e->getText() == "Settings") {
 							this->gameState = GameState::SETTINGS;
-							std::cout << "Settings" << std::endl;
 						}
 						else if (e->getText() == "Return to menu") {
 							this->gameState = GameState::MENU;
@@ -335,32 +332,28 @@ void Game::updateEnemies(){
 			else {
 				enemy = enemyTypes[rand() % enemyTypes.size()];
 			}
-			std::cout << "Spawn" << std::endl;
 			this->spawnEnemy(enemy);
 			this->enemySpawnTimer = 0.f;
 		}
 		else this->enemySpawnTimer += 1.f;
 	}
 	for (int i = 0; i < this->enemies.size(); i++) {
-		bool deleted = false;
 		if (this->enemies[i]->reachedEnd()) { 
 			health--; 
 			this->enemies.erase(enemies.begin() + i--);
 			this->maxEnemies--;
-			deleted = true;
+			roundClock.restart();
+			continue;
 		}
 		if (this->enemies[i]->isDead()) {
 			this->enemies.erase(enemies.begin() + i--);
 			this->coins += 50;
 			this->maxEnemies--;
 			this->enemyDeathSound.play();
-			deleted = true;
-		}
-
-		if (deleted) {
 			roundClock.restart();
 			continue;
 		}
+
 
 		//move enemies
 		//this->enemies[i].setTarget(mousePosView);
@@ -444,7 +437,7 @@ void Game::newGame() {
 	this->map->loadMap("demo1.tdmap");
 	this->gameState = GameState::PLAYING;
 	this->endGame = false;
-	this->health = 100;
+	this->health = 1;
 	this->coins = 900;
 	this->round = 1;
 	this->enemySpawnTimer = 0;

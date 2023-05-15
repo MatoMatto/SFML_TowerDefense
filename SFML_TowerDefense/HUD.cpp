@@ -34,10 +34,7 @@ void HUD::handleClickEvent(sf::Event& ev) {
 	if (ev.type == sf::Event::MouseButtonPressed && ev.mouseButton.button == sf::Mouse::Left) {
 		for (int i = 0; i < towers.size(); i++) {
 			if (this->towers[i]->isMouseOver(*Global::window)) {
-				if (prc[i] > *coins)std::cout << "Not enaugh money!" << std::endl;
-				else {
-					this->game->getTowerPlace()->setTower(buttonFunctions[i](), *this->textures[i]);
-				}
+				if (prc[i] <= *coins)this->game->getTowerPlace()->setTower(buttonFunctions[i](), *this->textures[i]);
 			}
 		}
 	}

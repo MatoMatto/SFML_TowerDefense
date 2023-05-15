@@ -42,7 +42,7 @@ Enemy::Enemy(sf::Font* font, Game* game, std::string type){
 
 void Enemy::draw(sf::RenderTarget& target){
 	target.draw(this->body);
-	target.draw(this->text);
+	//target.draw(this->text);
 }
 
 void Enemy::update(float FPS){
@@ -70,7 +70,6 @@ void Enemy::move(float FPS) {
 		this->target.y += Global::getUnit().y * .5f;
 	}
 	sf::Vector2f direction = target - position;
-	//std::cout << this->currentTileIndex << std::endl;
 	// Calculate distance to target
 	float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 	// Normalize direction vector
@@ -93,14 +92,12 @@ void Enemy::move(float FPS) {
 		this->target = this->path->at(this->currentTileIndex++)->getPosition();
 		this->target.x += Global::getUnit().x * .5f;
 		this->target.y += Global::getUnit().y * .5f;
-		//std::cout << target.x << ", " << target.y << std::endl;
 		move(FPS);
 		return;
 	}
 
 	// Calculate movement vector
 	sf::Vector2f movement = direction * (speed * 60 / FPS);
-	//std::cout << position.x << " " << position.y << std::endl;
 	// Update position
 	position += movement;
 	this->body.setPosition(position);
