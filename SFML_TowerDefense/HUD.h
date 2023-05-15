@@ -19,7 +19,7 @@ class HUD {
 	Button play;
 	int* health, * coins;
 	sf::RectangleShape sidePanel, bottomPanel;
-	sf::Text coinText, healthText;
+	sf::Text coinText, healthText, nameText;
 	Game* game;
 public:
 	HUD(int* health, int *coins, Game* game);

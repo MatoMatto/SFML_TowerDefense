@@ -27,12 +27,12 @@ private:
 	sf::Font& font;
 	sf::Text uiText;
 	sf::Text gameOverText;
-	sf::Clock FPSClock;
+	sf::Clock FPSClock, roundClock;
 	sf::Texture logoTexture, backgroundTexture, baseTexture;
 	std::map<std::string,sf::Texture> enemyTextures, bulletTextures;
-	sf::SoundBuffer clickBuffer;
-	sf::Sound clickSound;
-
+	sf::SoundBuffer clickBuffer, enemyDeathBuffer;
+	sf::Sound clickSound, enemyDeathSound;
+	std::vector<std::string> enemyTypes;
 
 
 	std::vector<Enemy*> enemies;
@@ -49,7 +49,7 @@ private:
 	bool endGame;
 	bool mouseHeld;
 	bool showFPS;
-
+	int round;
 	unsigned int points;
 	unsigned int maxEnemies;
 	int health;
@@ -76,8 +76,8 @@ public:
 
 	const bool getWindowIsOpen() const;
 	const bool getEndGame() const;
-
-	void spawnEnemy();
+	void newGame();
+	void spawnEnemy(std::string enemy);
 	void pollEvents();
 	void updateMousePosition();
 	int calculateFPS();

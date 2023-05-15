@@ -4,6 +4,8 @@ void Game::initText(){
 	this->uiText.setFont(this->font);
 	this->uiText.setCharacterSize(12);
 	this->uiText.setFillColor(sf::Color::White);
+	this->uiText.setOutlineColor(sf::Color::Black);
+	this->uiText.setOutlineThickness(2);
 	this->uiText.setString("Hello");
 
 	this->gameOverText.setFont(this->font);
@@ -21,7 +23,7 @@ void Game::initVars(){
 	this->videoMode.width = WIN_WIDTH;
 	Global::window = nullptr;
 	this->points = 0;
-	this->enemySpawnTimerMax = 0.5f;
+	this->enemySpawnTimerMax = 5.f;
 	this->enemySpawnTimer = this->enemySpawnTimerMax;
 	this->gameState = GameState::MENU;
 	this->maxEnemies = 0;
@@ -30,7 +32,7 @@ void Game::initVars(){
 	this->coins = 300;
 	this->endGame = true;
 	this->roundPlaying = false;
-	
+	this->round = 1;
 	this->logoTexture.loadFromFile("Resources/Sprites/logo.png");
 	this->backgroundTexture.loadFromFile("Resources/Sprites/main_background.png");
 
@@ -49,7 +51,9 @@ void Game::initVars(){
 	this->clickBuffer.loadFromFile("Resources/Sounds/click.wav");
 	this->clickSound.setBuffer(this->clickBuffer);
 
-	this->map = new Map();
+	this->enemyDeathBuffer.loadFromFile("Resources/Sounds/death.ogg");
+	this->enemyDeathSound.setBuffer(this->enemyDeathBuffer);
+
 	
 	this->baseTexture.loadFromFile("Resources/Sprites/base.png");
 
@@ -63,6 +67,7 @@ void Game::initVars(){
 	fs.close();
 	fs.open("Resources/config/enemies.ini", std::ios::in);
 	while (std::getline(fs, tmp)) {
+		enemyTypes.push_back(tmp);
 		this->enemyTextures[tmp] = (std::move(sf::Texture()));
 		this->enemyTextures[tmp].loadFromFile("Resources/Sprites/" + tmp + ".png");
 	}
@@ -188,8 +193,8 @@ const bool Game::getWindowIsOpen() const{
 
 
 
-void Game::spawnEnemy(){
-	Enemy* en = new Enemy(&this->font, this, "basic_enemy");
+void Game::spawnEnemy(std::string enemy){
+	Enemy* en = new Enemy(&this->font, this, enemy);
 	en->setPath(this->map->getPath());
 	en->setTarget({ this->map->getPath()->at(0)->getPosition().x + (Global::getUnit().x / 2),  this->map->getPath()->at(0)->getPosition().y + (Global::getUnit().y / 2) });
 	this->enemies.push_back(en);
@@ -228,11 +233,7 @@ void Game::pollEvents(){
 					if (e->isMouseOver(*Global::window)) {
 						this->clickSound.play();
 						if (e->getText() == "Play") {
-							this->map->loadMap("demo1.tdmap");
-							this->gameState = GameState::PLAYING;
-							this->endGame = false;
-							this->health = 100;
-							this->coins = 900;
+							this->newGame();
 						}
 						else if (e->getText() == "Settings") {
 							std::cout << "Settings" << std::endl;
@@ -309,19 +310,33 @@ int Game::calculateFPS() {
 void Game::updateText(){
 	std::stringstream ss;
 	if (this->showFPS) {
-		ss << "FPS: " << this->FPS;
+		ss << "FPS: " << this->FPS<<std::endl;
 	}
-	ss << "\nPoints: " << this->towers.size() << "\nHealth: " << this->health<<"\nEnemies: "<<this->maxEnemies;
+	ss << "Enemies: "<<this->maxEnemies;
 	this->uiText.setString(ss.str());
 }
 
 
 void Game::updateEnemies(){
 	//spawn timer
-	if (this->enemies.size() < this->maxEnemies) {
 
+	if (!maxEnemies && roundClock.getElapsedTime().asSeconds() > 5.f) {
+		round++;
+		maxEnemies += round + round/10;
+		enemySpawnTimerMax *= 1.f - round / 5;
+		enemySpawnTimerMax = std::max(enemySpawnTimerMax, 0.5f);
+	}
+	if (this->enemies.size() < this->maxEnemies) {
+		std::string enemy;
 		if (this->enemySpawnTimer >= this->enemySpawnTimerMax * this->FPS) {
-			this->spawnEnemy();
+			if (round <= 3) {
+				enemy = enemyTypes[0];
+			}
+			else {
+				enemy = enemyTypes[rand() % enemyTypes.size()];
+			}
+			std::cout << "Spawn" << std::endl;
+			this->spawnEnemy(enemy);
 			this->enemySpawnTimer = 0.f;
 		}
 		else this->enemySpawnTimer += 1.f;
@@ -332,8 +347,21 @@ void Game::updateEnemies(){
 			health--; 
 			this->enemies.erase(enemies.begin() + i--);
 			this->maxEnemies--;
+			deleted = true;
+		}
+		if (this->enemies[i]->isDead()) {
+			this->enemies.erase(enemies.begin() + i--);
+			this->coins += 50;
+			this->maxEnemies--;
+			this->enemyDeathSound.play();
+			deleted = true;
+		}
+
+		if (deleted) {
+			roundClock.restart();
 			continue;
 		}
+
 		//move enemies
 		//this->enemies[i].setTarget(mousePosView);
 		this->enemies[i]->update(this->FPS);
@@ -409,6 +437,26 @@ void Game::run() {
 
 float Game::getFPS() {
 	return this->FPS;
+}
+
+void Game::newGame() {
+	this->map = new Map();
+	this->map->loadMap("demo1.tdmap");
+	this->gameState = GameState::PLAYING;
+	this->endGame = false;
+	this->health = 100;
+	this->coins = 900;
+	this->round = 1;
+	this->enemySpawnTimer = 0;
+	this->roundClock.restart();
+	for (auto& e : this->enemies) {
+		delete e;
+	}
+	for (auto& e : this->towers) {
+		delete e;
+	}
+	this->enemies.clear();
+	this->towers.clear();
 }
 
 std::vector<Tower*>* Game::getTowers() {

@@ -4,11 +4,14 @@
 void Bullet::update() {
 	if (this->target)targetPos = this->target->getPosition();
 	this->moveToTarget();
-	
+	this->checkOutOfBounds();
+	if (valid)checkEnemyCollision();
+	std::cout << this << " " << position.x<<" "<<position.y << std::endl;
 }
 
 void Bullet::setTarget(Enemy* enemy) {
-	this->target = enemy;
+	if (homing)this->target = enemy;
+	else this->target = nullptr;
 }
 
 Enemy* Bullet::getTarget() {
@@ -25,20 +28,17 @@ sf::Vector2f Bullet::getStaticTarget() {
 
 
 void Bullet::moveToTarget() {
-	if (!this->target) {
-		if (velocity.x == 0 && velocity.y == 0) {
-			sf::Vector2f dir = targetPos - position;
-			float mag = std::sqrt(dir.x * dir.x + dir.y * dir.y);
-			if (mag)dir /= mag;
-			this->velocity = dir * (speed * 60/game->getFPS());
-			this->aimAtTarget();
-		}
-		this->position += velocity;
-		this->sprite.setPosition(this->position);
-		return;
+	if (velocity.x == 0 && velocity.y == 0) {
+		sf::Vector2f dir = targetPos - position;
+		float mag = std::sqrt(dir.x * dir.x + dir.y * dir.y);
+		if (mag)dir /= mag;
+		this->velocity = dir * (speed * 60/game->getFPS());
+		this->aimAtTarget();
 	}
+	this->position += velocity;
+	this->sprite.setPosition(this->position);
+	return;
 	
-	this->rocketVelocity();
 }
 
 void Bullet::setTexture(sf::Texture& texture) {
@@ -77,11 +77,37 @@ void Bullet::rocketVelocity() {
 }
 
 void Bullet::aimAtTarget() {
-	this->sprite.setRotation(atan2(velocity.x, velocity.x) * RAD_TO_DEG + 90);
+	this->sprite.setRotation(atan2(velocity.y, velocity.x) * RAD_TO_DEG + 90);
+}
+
+void Bullet::checkEnemyCollision() {
+	for (auto it = game->getEnemies()->begin(); it != game->getEnemies()->end(); ++it) {
+		Enemy* enemy = *it;
+		sf::FloatRect enemyBounds = enemy->getDetails();
+		sf::FloatRect bulletBounds = this->sprite.getGlobalBounds();
+
+		if (enemyBounds.intersects(bulletBounds)) {
+			if (!enemy->isDead()) {
+				enemy->damage(damage);
+			}
+			std::cout << "Shot" << std::endl;
+			valid = false;
+			return;
+		}
+	}
+}
+
+void Bullet::checkOutOfBounds() {
+	this->valid = !(this->position.x < 0 || this->position.x > Global::getUnit().x * GRID_WIDTH || this->position.y < 0 || this->position.y > Global::getUnit().y * GRID_HEIGHT);
+}
+
+bool Bullet::isValid() {
+	return this->valid;
 }
 
 Bullet::Bullet(Game* game, sf::Texture& texture, Tower* tower) {
 	this->target = nullptr;
+	this->valid = true;
 	this->owner = tower;
 	this->position = tower->getPosition();
 	this->max_velocity = 5;

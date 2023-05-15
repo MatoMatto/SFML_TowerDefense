@@ -67,16 +67,23 @@ HUD::HUD(int* health, int* coins, Game* game){
 	this->bottomPanel.setSize({ (float)Global::window->getSize().x * GAME_SIZE, Global::window->getSize().y * (1 - GAME_SIZE) });
 
 	this->sidePanel.setFillColor(sf::Color(0x55,0x55,0x55));
-	this->bottomPanel.setFillColor(sf::Color::Blue);
+	this->bottomPanel.setFillColor(sf::Color(0x55, 0x55, 0x55));
 
 	this->coinText.setFont(FontLoader::getInstance().getFont());
 	this->healthText.setFont(FontLoader::getInstance().getFont());
+	this->nameText.setFont(FontLoader::getInstance().getFont());
 
 	this->coinText.setOutlineColor(sf::Color::Black);
 	this->healthText.setOutlineColor(sf::Color::Black);
+	this->nameText.setOutlineColor(sf::Color::Black);
 
 	this->coinText.setOutlineThickness(4);
 	this->healthText.setOutlineThickness(4);
+	this->nameText.setOutlineThickness(4);
+
+
+	this->nameText.setString("Matic Travnikar, R3A");
+	this->nameText.setPosition((this->bottomPanel.getPosition().x + this->bottomPanel.getLocalBounds().width - this->nameText.getLocalBounds().width) / 2, this->bottomPanel.getPosition().y + (this->bottomPanel.getLocalBounds().height - this->nameText.getLocalBounds().height) / 2);
 
 	std::vector<std::string> towerNames;
 	std::string tmp;
@@ -122,6 +129,7 @@ void HUD::drawTo(sf::RenderTarget& target) {
 	target.draw(this->bottomPanel);
 	target.draw(this->coinText);
 	target.draw(this->healthText);
+	target.draw(this->nameText);
 	for (auto& e : this->towers) {
 		e->drawTo(target);
 	}

@@ -58,25 +58,42 @@ void Tower::draw(sf::RenderTarget& target) {
 
 }
 
+
 void Tower::update() {
-	this->updateTarget();
+	updateTarget();
+
 	if (target) {
-		this->aimAtTarget();
-		if (shootDelay <= shootTimer.getElapsedTime().asSeconds()) { 
-			this->shoot();
-			shootTimer.restart(); 
+		aimAtTarget();
+
+		if (shootDelay <= shootTimer.getElapsedTime().asSeconds()) {
+			shoot();
+			shootTimer.restart();
 		}
 	}
+
 	for (auto& e : this->bullets) {
 		e->update();
+		if (!e->isValid()) {
+			this->bullets.erase(std::remove_if(this->bullets.begin(), this->bullets.end(), [](Bullet* bullet) {
+				bool isValid = bullet->isValid();
+				if (!isValid) {
+					delete bullet;
+				}
+				return !isValid;
+			}), this->bullets.end());
+		}
 	}
 }
 
 void Tower::shoot() {
 	Bullet* bullet = new Bullet(this->game, this->game->getBulletTextures()->at(bulletName), this);
 	bullet->setStaticTarget(enemyPos);
+	bullet->setTarget(target);
 	this->bullets.push_back(bullet);
 	std::cout << "Boom" << std::endl;
+}
+std::vector<Bullet*>& Tower::getBullets() {
+	return this->bullets;
 }
 std::string Tower::getBulletType() {
 	return this->bulletName;

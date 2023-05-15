@@ -30,8 +30,10 @@ public:
 	void move(float FPS);
 	void setType(std::string type);
 	void setTexture(sf::Texture& texture);
+	void damage(int damage);
+	bool isDead();
 	sf::Vector2f getPosition();
-
+	sf::FloatRect getDetails();
 	bool reachedEnd();
 };
 

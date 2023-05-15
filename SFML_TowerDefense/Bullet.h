@@ -12,7 +12,7 @@ class Bullet {
 	sf::Vector2f velocity;
 	float speed, max_velocity;
 	float acceleration;
-	bool homing;
+	bool homing, valid;
 	int damage;
 
 	Game* game;
@@ -31,7 +31,10 @@ public:
 	void drawTo(sf::RenderTarget& target);
 	void rocketVelocity();
 	void aimAtTarget();
-	
+	void checkEnemyCollision();
+	void checkOutOfBounds();
+	bool isValid();
 	Bullet(Game* game, sf::Texture& texture, Tower* tower);
+
 };
 

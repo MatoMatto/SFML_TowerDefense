@@ -31,6 +31,7 @@ public:
 	void aimAtTarget();
 	void aimAtMouse();
 	void shoot();
+	std::vector<Bullet*>& getBullets();
 	std::string getBulletType();
 	sf::Vector2f getPosition();
 };

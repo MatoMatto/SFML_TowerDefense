@@ -71,24 +71,6 @@ void Map::loadMap(std::string filename) {
 	this->loadBushes();
 }
 void Map::loadPath() {
-	/*this->path.clear();
-	Tile* prev = nullptr, *current;
-	current = getTile(start.x, start.y);
-	this->path.push_back(current);
-	while (current != getTile(end.x, end.y)) {
-		std::vector<Tile*> adj;
-		adj = getAdjacentTiles(current);
-		for (auto& e : adj) {
-			if (e != prev) {
-				prev = current;
-				current = e;
-				break;
-			}
-		}
-		this->path.push_back(current);
-		std::cout << current->getIndex().x << ", " << current->getIndex().y << std::endl;
-	}
-	this->path.push_back(getTile(end.x, end.y));*/
 	this->path.clear();
 	Tile* startTile = getTile(start.x, start.y);
 	Tile* endTile = getTile(end.x, end.y);
@@ -106,28 +88,28 @@ bool Map::buildPath(Tile* current, Tile* endTile) {
 		return true;
 	}
 
-	// Check if the current tile has already been visited
+	
 	if (std::find(this->path.begin(), this->path.end(), current) != this->path.end()) {
 		// The current tile is already in the path, indicating a loop
 		return false;
 	}
 
-	// Add the current tile to the path
+	
 	this->path.push_back(current);
 
 	std::vector<Tile*> adjacentTiles = getAdjacentTiles(current);
 	for (auto& tile : adjacentTiles) {
 		if (buildPath(tile, endTile)) {
-			// If a path to the end tile is found, return true
 			return true;
 		}
 	}
 
-	// If no path to the end tile is found, remove the current tile from the path
+	
 	this->path.pop_back();
 
 	return false;
 }
+
 void Map::loadBushes() {
 	for (int i = 0; i < this->maxBushes; i++) {
 		int tile = rand() % (this->tiles.size() - this->path.size());

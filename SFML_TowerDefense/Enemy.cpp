@@ -47,6 +47,7 @@ void Enemy::draw(sf::RenderTarget& target){
 
 void Enemy::update(float FPS){
 	this->move(FPS);
+	this->text.setString(std::to_string(this->health));
 }
 
 void Enemy::setTarget(sf::Vector2f target){
@@ -123,8 +124,20 @@ void Enemy::setTexture(sf::Texture& texture) {
 	this->body.setOrigin(origin);
 }
 
+void Enemy::damage(int damage) {
+	this->health -= damage;
+}
+
+bool Enemy::isDead() {
+	return (this->health <= 0);
+}
+
 sf::Vector2f Enemy::getPosition() {
 	return this->position;
+}
+
+sf::FloatRect Enemy::getDetails() {
+	return this->body.getGlobalBounds();
 }
 
 bool Enemy::reachedEnd() {
